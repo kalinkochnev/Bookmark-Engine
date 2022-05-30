@@ -1,20 +1,38 @@
+export function getBookmarks(bookmarkTree, bookmarks = []) {
+	// Ignore any folders (which means they don't have a url)
+	if (bookmarkTree.url) {
+		bookmarks.push({
+			title: bookmarkTree.title,
+			url: bookmarkTree.url
+		})
+	}
+
+	// If it is a folder, search for its children
+	if (bookmarkTree.children) {
+		for (let child of bookmarkTree.children) {
+			bookmarks.push(...getBookmarks(child, []))
+		}
+	}
+	return bookmarks;
+}
+
 export function getBookmarkWebpages(limit=5) {
     let tree = browser.bookmarks.getTree();
 
-    tree.then((bkmrk_tree) => {
+    return tree.then((bkmrk_tree) => {
         // Get the bookmarks and then get their webpages
         let bookmarks = getBookmarks(bkmrk_tree[0]);
         let pending_requests = [];
 
-        for (const [index, bk] in bookmarks.entries()) {
-            console.log('yoyoyo')
+        for (let [index, bk] of bookmarks.reverse().entries()) {
+            console.log(index)
             // Stop sending requests once we reach our limit
             if (index >= limit) {
                 break;
             }
 
-            // Return HTML response from the promise
-            let req = fetch(kb.url, {method: 'get'}).then(res => {
+            // Return the HTML response from the promise
+            let req = fetch(bk.url, {method: 'get', headers: headers}).then(res => {
                 if (res.ok) {
                     return res.text();
                 } else {
@@ -27,7 +45,7 @@ export function getBookmarkWebpages(limit=5) {
         }
 
         // Wait for all the requests to resolve
-        Promise.all(pending_requests).then(results => {
+        return Promise.all(pending_requests).then(results => {
             return results.filter(item => item !== null);
         });
         
