@@ -1,69 +1,46 @@
+import {getBookmarkWebpages} from "./setup.js";
+
 document.getElementById("dosmth").addEventListener('click', () => {
-    getBookmarkFolders()
+	displayBookmarks();
+	console.log(":(")
+	// console.log(getBookmarkWebpages(1));
 });
 
+function getBookmarks(bookmarkTree, bookmarks = []) {
+	// Ignore any folders (which means they don't have a url)
+	if (bookmarkTree.url) {
+		bookmarks.push({
+			title: bookmarkTree.title,
+			url: bookmarkTree.url
+		})
+	}
 
-function onRejected(error) {
-  console.log(`An error: ${error}`);
-}
-
-function logItems(bookmarkItem) {
-  let folders = document.getElementById("bk-folders");
-
-  if (bookmarkItem.url) {
-    folders.appendChild(document.createTextNode(bookmarkItem.title));
-  } else {
-    folders.appendChild(document.createTextNode("Folder"));
-  }
-  folders.appendChild(document.createElement("br"));
-  if (bookmarkItem.children) {
-    for (child of bookmarkItem.children) {
-      logItems(child);
-    }
-  }
-}
-
-function logTree(bookmarkItems) {
-  let folders = document.getElementById("bk-folders");
-  folders.innerHTML = ""
-
-  logItems(bookmarkItems[0]);
-}
-
-function onRejected(error) {
-  console.log(`An error: ${error}`);
+	// If it is a folder, search for its children
+	if (bookmarkTree.children) {
+		for (let child of bookmarkTree.children) {
+			bookmarks.push(...getBookmarks(child, []))
+		}
+	}
+	return bookmarks;
 }
 
 
-function getBookmarkFolders() {
-  // console.log("click");
-  let tree = browser.bookmarks.getTree();
-  // let gettingRecent = browser.bookmarks.getRecent(10);
-  tree.then(logTree, onRejected);
-  // folders.firstElementChild = document.createTextNode(getBookmarks(tree))
-}
+function displayBookmarks() {
+	let tree = browser.bookmarks.getTree();
+	let folders = document.getElementById("bk-folders");
+	folders.innerHTML = ""
 
-function getBookmarks(bookmarkItem) {
-    let bookmarks = [];
-    let folders = [];
-    let to_search = [bookmarkItem];
+	tree.then((bkmrk_tree) => {
+		// Get the bookmarks and then display them
+		console.log(bkmrk_tree[0]);
 
-    while (to_search.length > 0) {
-        let curr_bk = to_search[0];
-        console.log(to_search)
+		let bookmarks = getBookmarks(bkmrk_tree[0]);
 
-        if (curr_bk.url) {
-            bookmarks.push(curr_bk.title);
-        } else {
-            folders.push(curr_bk.title)
-        }
-        if (curr_bk.children) {
-            for (child of curr_bk.children) {
-                to_search.push(child);
-            }
-        }
-        
-        to_search.splice(0);
-    }
-    return bookmarks
+		for (bk of bookmarks) {
+			folders.appendChild(document.createTextNode(bk.title));
+			folders.appendChild(document.createElement("br"));
+		}
+	},
+		(error) => console.log(`An error: ${error}`)
+	);
 }
