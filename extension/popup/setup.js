@@ -1,6 +1,7 @@
 export function getBookmarks(bookmarkTree, bookmarks = []) {
 	// Ignore any folders (which means they don't have a url)
 	if (bookmarkTree.url) {
+        // Create the Rust Bookmark struct
 		bookmarks.push({
 			title: bookmarkTree.title,
 			url: bookmarkTree.url
@@ -13,6 +14,8 @@ export function getBookmarks(bookmarkTree, bookmarks = []) {
 			bookmarks.push(...getBookmarks(child, []))
 		}
 	}
+    
+    // Preprocess any duplicate 
 	return bookmarks;
 }
 
@@ -25,15 +28,16 @@ export function getBookmarkWebpages(limit=5) {
         let pending_requests = [];
 
         for (let [index, bk] of bookmarks.reverse().entries()) {
-            console.log(index)
             // Stop sending requests once we reach our limit
             if (index >= limit) {
                 break;
             }
 
             // Return the HTML response from the promise
-            let req = fetch(bk.url, {method: 'get', headers: headers}).then(res => {
+            let req = fetch(bk.url, {method: 'get'  }).then(res => {
                 if (res.ok) {
+                    console.log(res.headers);
+
                     return res.text();
                 } else {
                     return null;

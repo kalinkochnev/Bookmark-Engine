@@ -1,14 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- TODO disable certain urls from being crawled -->
+    <title>Bookmark Search Bar</title>
     <meta charset="utf-8">
   </head>
   <body>
-      <h2>Bookmark folders</h2>
-      <button id="dosmth">click me</button>
-      <div id="bk-folders">
-        p
+    <h2>Bookmark Search Engine</h2>
+    
+    <div>
+      
+    </div>
+    <div id="bk-folders">
+      p
+    </div>
+
+    <div>
+      <label>Enable web-crawl</label>
+      <input type="checkbox" />
+
+      <div>
+        <label>Depth (recommended 1)</label>
+        <input type="range" min="1" max="3" value="1">
       </div>
+
+      <div>
+        <p>Ignored urls (ex: youtube.com)</p>
+        <div>
+
+        </div>
+        <button>+</button>
+        <button>ignore current site</button>
+      </div>
+    </div>
+    
+    <button id="re-index">Re-index all pages</button>
+    <p>Current index size: 2.5 MB</p>
   </body>
   <script type="module" src="settings.js"></script>
   <script type="text/javascript" src="setup.js"></script>

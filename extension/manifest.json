@@ -10,7 +10,9 @@
   
   "permissions": [
     "bookmarks",
-    "storage"
+    "storage",
+    "webrequest",
+    "<all_urls>"
   ],
 
   "browser_action": {
