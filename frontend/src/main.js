@@ -1,7 +1,18 @@
-import App from './App.svelte'
+import App from './App.svelte';
+import wasm from '../../search-engine/Cargo.toml';
 
-const app = new App({
-  target: document.getElementById('app')
-})
+const init = async () => {
+    const module = await wasm();
 
-export default app
+
+    const app = new App({
+        target: document.body,
+        props: {
+          // https://svelte.dev/docs#Creating_a_component
+          greet: module.greet()
+        }
+    });
+
+};
+
+init();

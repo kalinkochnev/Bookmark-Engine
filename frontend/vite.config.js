@@ -1,43 +1,12 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { terser } from 'rollup-plugin-terser';
-import livereload from 'rollup-plugin-livereload';
+import commonjs from "@rollup/plugin-commonjs";
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import rust from "@wasm-tool/rollup-plugin-rust";
-
+import { resolve } from 'path';
+import livereload from 'rollup-plugin-livereload';
+import { terser } from 'rollup-plugin-terser';
+import { defineConfig } from 'vite';
 const production = !process.env.ROLLUP_WATCH;
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [
-    svelte({
-      // enable run-time checks when not in production
-      dev: !production,
-      // we'll extract any component CSS out into
-      // a separate file - better for performance
-      css: css => {
-        css.write('public/build/bundle.css');
-      }
-    }),
-
-    rust({
-      verbose: true,
-      serverPath: "/build/"
-    }),
-
-    // In dev mode, call `npm run start` once
-    // the bundle has been generated
-    !production && serve(),
-
-    // Watch the `public` directory and refresh the
-    // browser on changes when not in production
-    !production && livereload('public'),
-
-    // If we're building for production (npm run build
-    // instead of npm run dev), minify
-    production && terser()
-  ]
-
-})
 
 
 function serve() {
@@ -56,3 +25,51 @@ function serve() {
     }
   };
 } 
+
+// https://vitejs.dev/config/
+export default [
+  {
+    input: 'src/main.js',
+    plugins: [
+      svelte({
+        // enable run-time checks when not in production
+        dev: !production,
+        // we'll extract any component CSS out into
+        // a separate file - better for performance
+        // css: css => {
+        //   css.write('public/build/bundle.css');
+        // }
+      }),
+
+      rust({
+        verbose: true,
+        serverPath: "/build/"
+      }),
+
+      // // In dev mode, call `npm run start` once
+      // // the bundle has been generated
+      // !production && serve(),
+
+      // // Watch the `public` directory and refresh the
+      // // browser on changes when not in production
+      // !production && livereload('public'),
+
+      // // If we're building for production (npm run build
+      // // instead of npm run dev), minify
+      // production && terser()
+    ]
+
+  },
+  {
+    input: "src/background.js",
+    output: {
+      sourcemap: true,
+      format: "iife",
+      file: "public/build/background.js",
+    },
+    plugins: [resolve(), commonjs()],
+    watch: {
+      clearScreen: false,
+    },
+  },
+];
